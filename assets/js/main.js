@@ -63,13 +63,12 @@
   /**
    * Preloader
    */
-  const preloader = document.querySelector('#preloader');
-  if (preloader) {
-    window.addEventListener('load', () => {
-      preloader.remove();
-    });
-  }
 
+  const loader = document.getElementById("preloader");
+  if (loader) {
+    loader.style.display = "none";
+  }
+});
   /**
    * Scroll top button
    */
