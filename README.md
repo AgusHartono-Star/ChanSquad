@@ -1,0 +1,2 @@
+# ChanSquad
+friendship
