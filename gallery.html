@@ -1347,27 +1347,21 @@
 
   <div class="container" data-aos="fade-up">
 
-    <div class="orbit-wrapper cosmic-bg">
-
-      <!-- GOJO CENTER (STATIC, ABSOLUTE) -->
-      <div class="gojo-center">
-        <img src="assets/img/restaurant/gojo.png" alt="Gojo">
-      </div>
-
-      <!-- ORBIT ITEMS -->
-      <div class="orbit" id="orbitGallery">
-        <div class="orbit-item"><img src="assets/img/restaurant/chansquad42.jpeg"></div>
-        <div class="orbit-item"><img src="assets/img/restaurant/chansquad46.jpeg"></div>
-        <div class="orbit-item"><img src="assets/img/restaurant/chansquad48.jpeg"></div>
-        <div class="orbit-item"><img src="assets/img/restaurant/chansquad43.jpeg"></div>
-        <div class="orbit-item"><img src="assets/img/restaurant/chansquad55.jpeg"></div>
-        <div class="orbit-item"><img src="assets/img/restaurant/chansquad49.jpeg"></div>
-        <div class="orbit-item"><img src="assets/img/restaurant/zain.jpeg"></div>
-      </div>
-
-    </div>
-
-  </div>
+   <div class="orbit-wrapper">
+  <!-- VIDEO (khusus mobile) -->
+  <video
+    id="orbitVideo"
+    class="orbit-bg-video"
+    autoplay
+    muted
+    loop
+    playsinline
+  >
+    <source src="assets/img/restaurant/space.mp4" type="video/mp4">
+  </video>
+  <canvas id="orbitCanvas"></canvas>
+  
+</div>
 
 <audio id="orbitSound" src="assets/img/person/sound.wav" preload="auto"></audio>
 
@@ -1517,7 +1511,7 @@
   <!-- Main JS File -->
   
   <script src="assets/js/main.js"></script>
-
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 </body>
 
 </html>

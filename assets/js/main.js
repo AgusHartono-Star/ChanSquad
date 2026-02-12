@@ -335,10 +335,225 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+document.addEventListener("DOMContentLoaded", () => {
 
+  const canvas = document.getElementById("orbitCanvas");
+  if (!canvas) return;
 
+  /* ===============================
+     DEVICE DETECTION
+  ================================ */
+  const isMobile = window.innerWidth <= 768;
 
+  /* ===============================
+     MANUAL SIZE CONFIG
+     (DESKTOP TETAP, MOBILE DIKECILKAN)
+  ================================ */
+  const SCALE = isMobile ? 0.5 : 1;
 
+  const CARD_WIDTH  = 140 * SCALE;
+  const CARD_HEIGHT = 160 * SCALE;
+
+  const CENTER_WIDTH  = 320 * SCALE;
+  const CENTER_HEIGHT = 420 * SCALE;
+
+  const ORBIT_RADIUS = isMobile ? 180 : 360;
+
+  /* ===============================
+     SCENE
+  ================================ */
+  const scene = new THREE.Scene();
+
+  const camera = new THREE.PerspectiveCamera(
+    45,
+    canvas.clientWidth / canvas.clientHeight,
+    1,
+    2000
+  );
+
+  camera.position.set(0, 0, isMobile ? 420 : 680);
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    alpha: true,       // ✅ TRANSPARAN
+    antialias: true
+  });
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+  /* ===============================
+     LIGHT
+  ================================ */
+  scene.add(new THREE.AmbientLight(0xffffff, 1));
+
+  /* ===============================
+     TEXTURE LOADER
+  ================================ */
+  const loader = new THREE.TextureLoader();
+
+  /* ===============================
+     CENTER IMAGE (GOJO)
+  ================================ */
+  const gojoTex = loader.load("assets/img/restaurant/gojo.png");
+  gojoTex.colorSpace = THREE.SRGBColorSpace;
+
+  const gojoMat = new THREE.MeshBasicMaterial({
+    map: gojoTex,
+    transparent: true
+  });
+
+  const gojoGeo = new THREE.PlaneGeometry(
+    CENTER_WIDTH,
+    CENTER_HEIGHT
+  );
+
+  const gojo = new THREE.Mesh(gojoGeo, gojoMat);
+  gojo.position.set(0, 0, 10);
+  scene.add(gojo);
+
+  /* ===============================
+     ORBIT IMAGES
+  ================================ */
+  const imagePaths = [
+    "assets/img/restaurant/chansquad42.jpeg",
+    "assets/img/restaurant/chansquad46.jpeg",
+    "assets/img/restaurant/chansquad48.jpeg",
+    "assets/img/restaurant/chansquad43.jpeg",
+    "assets/img/restaurant/chansquad55.jpeg",
+    "assets/img/restaurant/chansquad49.jpeg",
+    "assets/img/restaurant/zain.jpeg"
+  ];
+
+  const cards = [];
+
+  imagePaths.forEach((src, i) => {
+
+    const tex = loader.load(src);
+    tex.colorSpace = THREE.SRGBColorSpace;
+
+    const mat = new THREE.MeshBasicMaterial({
+      map: tex
+    });
+
+    const geo = new THREE.PlaneGeometry(
+      CARD_WIDTH,
+      CARD_HEIGHT
+    );
+
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.userData.angle = (i / imagePaths.length) * Math.PI * 2;
+
+    cards.push(mesh);
+    scene.add(mesh);
+  });
+
+  /* ===============================
+     INTERACTION
+  ================================ */
+  let isDragging = false;
+  let lastX = 0;
+  let velocity = 0;
+  let rotation = 0;
+
+  const friction = 0.93;
+  const autoSpeed = 0.0018;
+
+  canvas.addEventListener("pointerdown", e => {
+    isDragging = true;
+    lastX = e.clientX;
+    velocity = 0;
+  });
+
+  window.addEventListener("pointermove", e => {
+    if (!isDragging) return;
+    const dx = e.clientX - lastX;
+    lastX = e.clientX;
+    velocity = dx * 0.002;
+    rotation += velocity;
+  });
+
+  window.addEventListener("pointerup", () => {
+    isDragging = false;
+  });
+
+  /* ===============================
+     ANIMATION
+  ================================ */
+  function animate() {
+    requestAnimationFrame(animate);
+
+    if (!isDragging) {
+      velocity *= friction;
+      rotation += Math.abs(velocity) > 0.0001 ? velocity : autoSpeed;
+    }
+
+    cards.forEach(card => {
+      const a = card.userData.angle + rotation;
+
+      card.position.x = Math.sin(a) * ORBIT_RADIUS;
+      card.position.z = Math.cos(a) * ORBIT_RADIUS - 60;
+      card.position.y = 0;
+
+      card.lookAt(camera.position);
+    });
+
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  /* ===============================
+     RESIZE
+  ================================ */
+  window.addEventListener("resize", () => {
+    camera.aspect = canvas.clientWidth / canvas.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+  });
+
+});
+
+// ===============================
+// VIDEO TOGGLE (DOUBLE TAP FIXED)
+// ===============================
+document.addEventListener("DOMContentLoaded", () => {
+
+  const wrapper = document.getElementById("orbitWrapper");
+  const video   = document.getElementById("orbitVideo");
+
+  if (!wrapper || !video) return;
+
+  let lastTapTime = 0;
+  let videoEnabled = true;
+
+  wrapper.addEventListener("click", (e) => {
+
+    const now = Date.now();
+    const diff = now - lastTapTime;
+
+    if (diff < 300 && diff > 60) {
+
+      videoEnabled = !videoEnabled;
+
+      if (!videoEnabled) {
+        video.pause();
+        video.removeAttribute("autoplay");
+        video.loop = false;
+        wrapper.classList.add("video-off");
+      } else {
+        video.loop = true;
+        video.play().catch(() => {});
+        wrapper.classList.remove("video-off");
+      }
+
+    }
+
+    lastTapTime = now;
+  });
+
+});
 
 
   /**
